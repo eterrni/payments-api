@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 var db *gorm.DB
@@ -15,9 +14,16 @@ func init() {
 
 	var err error
 	dsn := os.Getenv("DB_DSN")
-	gorm.Open()
+	db, err = gorm.Open("postgres", dsn)
+	if err != nil {
+		log.Fatalf("Ошибка подключения к БД: %v", err)
+	}
+
+	db.AutoMigrate(&repository.Payment{})
 }
 
 func main() {
+
+	r := mux.NewRouter()
 
 }
