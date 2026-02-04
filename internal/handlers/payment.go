@@ -5,16 +5,24 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/eterrni/payments-api/internal/services"
+	"github.com/eterrni/payments-api/internal/repository"
+	service "github.com/eterrni/payments-api/internal/services"
 	"github.com/eterrni/payments-api/pkg/utils"
 	"github.com/gorilla/mux"
 )
 
-type PaymentHandler struct {
-	service service.PaymentService
+type paymentService interface {
+	CreatePayment(service.PaymentRequest) error
+	GetPayment(uint) (*repository.Payment, error)
+	UpdatePayment(uint, service.PaymentRequest) error
+	DeletePayment(uint) error
 }
 
-func NewPaymentHandler(svc service.PaymentService) *PaymentHandler {
+type PaymentHandler struct {
+	service paymentService
+}
+
+func NewPaymentHandler(svc paymentService) *PaymentHandler {
 	return &PaymentHandler{service: svc}
 }
 

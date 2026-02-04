@@ -4,11 +4,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/eterrni/payments-api/internal/handlers"
 	"github.com/eterrni/payments-api/internal/repository"
-	"github.com/eterrni/payments-api/internal/services"
+	service "github.com/eterrni/payments-api/internal/services"
 	"github.com/eterrni/payments-api/pkg/middleware"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -22,6 +23,9 @@ func init() {
 
 	var err error
 	dsn := os.Getenv("DB_DSN")
+	if dsn != "" && !strings.Contains(dsn, "sslmode=") {
+		dsn = strings.TrimSpace(dsn) + " sslmode=disable"
+	}
 	db, err = gorm.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %v", err)
@@ -36,7 +40,8 @@ func main() {
 	r.Use(middleware.LoggingMiddleware)
 	r.Use(middleware.RecoveryMiddleware)
 
-	ph := handlers.NewPaymentHandler(service.NewPaymentService(repository.NewPaymentRepository(db)))
+	paymentSvc := service.NewPaymentService(repository.NewPaymentRepository(db))
+	ph := handlers.NewPaymentHandler(&paymentSvc)
 	r.HandleFunc("/payments", ph.CreatePayment).Methods("POST")
 	r.HandleFunc("/payments/{id}", ph.GetPayment).Methods("GET")
 	r.HandleFunc("/payments/{id}", ph.UpdatePayment).Methods("PUT")

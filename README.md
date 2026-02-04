@@ -15,6 +15,10 @@ REST API для управления платежами. Использует Go
 
 ## Запуск локально
 
+Вариант с готовой конфигурацией (PostgreSQL в Docker и пример env) — см. **[local/README.md](local/README.md)**.
+
+Минимальный запуск:
+
 ```bash
 export DB_DSN="host=localhost user=postgres password=postgres dbname=payments sslmode=disable"
 go run ./cmd
@@ -66,6 +70,7 @@ docker run -p 8080:8080 \
 
 ```
 cmd/                 — точка входа
+local/               — локальный запуск (docker-compose PostgreSQL, .env.example)
 internal/
   handlers/          — HTTP-обработчики
   repository/        — работа с БД
