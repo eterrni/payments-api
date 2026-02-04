@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 
-	"github.com/payment-api/internal/repository"
+	"github.com/eterrni/payments-api/internal/repository"
 )
 
 type PaymentService struct {
@@ -24,5 +24,26 @@ func (s *PaymentService) CreatePayment(payment PaymentRequest) error {
 		return errors.New("invalid payment amount")
 	}
 
-	return s.repo.CreatePayment(payment)
+	return s.repo.CreatePayment(repository.Payment{
+		Amount:   payment.Amount,
+		Currency: payment.Currency,
+	})
+}
+
+func (s *PaymentService) GetPayment(id uint) (*repository.Payment, error) {
+	return s.repo.GetByID(id)
+}
+
+func (s *PaymentService) UpdatePayment(id uint, payment PaymentRequest) error {
+	if payment.Amount <= 0 {
+		return errors.New("invalid payment amount")
+	}
+	return s.repo.Update(id, repository.Payment{
+		Amount:   payment.Amount,
+		Currency: payment.Currency,
+	})
+}
+
+func (s *PaymentService) DeletePayment(id uint) error {
+	return s.repo.Delete(id)
 }
